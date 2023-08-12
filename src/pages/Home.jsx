@@ -12,17 +12,15 @@ import { SearchContext } from '../App';
 const Home = () => {
   const dispatch = useDispatch();
   const categoryId = useSelector((state) => state.filter.categoryId);
+  const sortType = useSelector((state) => state.filter.sort.sortProperty);
+
+
   console.log(categoryId);
 
   const { searchValue } = React.useContext(SearchContext); //контекст из апп.джсх
   const [items, setItems] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
-  // const [categoryId, setCategoryId] = React.useState(0); //из категорий
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [sortType, setSortType] = React.useState({
-    name: 'популярности',
-    sortProperty: 'rating',
-  }); //из сорта
 
   const onChangeCategory = (id) => {
     console.log(id);
@@ -32,9 +30,9 @@ const Home = () => {
   React.useEffect(() => {
     setIsLoading(true);
 
-    const sortBy = sortType.sortProperty.replace('-', '');
-    const order = sortType.sortProperty.includes('-') ? 'asc' : 'decs';
-    const category = categoryId ? `category=${categoryId}` : '';
+    const sortBy = sortType.replace('-', '');
+    const order = sortType.includes('-') ? 'asc' : 'decs';
+    const category = categoryId > 0 ? `category=${categoryId}` : '';
     const search = searchValue ? `&search=${searchValue}` : '';
 
     fetch(
@@ -63,7 +61,7 @@ const Home = () => {
     <div className="container">
       <div className="content__top">
         <Categories value={categoryId} onChangeCategory={onChangeCategory} />
-        <Sort value={sortType} onChangeSort={(id) => setSortType(id)} />
+        <Sort />
       </div>
       <h2 className="content__title">Все пиццы</h2>
       <div className="content__items">{isLoading ? skeletons : pizzas}</div>
