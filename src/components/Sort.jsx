@@ -15,7 +15,7 @@ const list = [
 
 function Sort() {
   const dispatch = useDispatch();
-  const sort = useSelector((state) => state.filter.sort);
+  const sort = useSelector((state) => state.filter.sort); //смотрит за изменениями, если они будут то будет перерендер
 
   const [open, setOpen] = React.useState(false);
 

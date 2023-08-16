@@ -5,7 +5,7 @@ function Categories({ value, onChangeCategory }) {
   const categories = ['Всё', 'Мясные', 'Вегетарианская', 'Гриль', 'Острые', 'Закрытые'];
 
   return (
-    <div class="categories">
+    <div className="categories">
       <ul>
         {categories.map((categoryName, i) => (
       

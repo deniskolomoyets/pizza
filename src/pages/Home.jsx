@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { setCategoryId } from '../redux/slices/filterSlice';
@@ -15,15 +16,12 @@ const Home = () => {
   const sortType = useSelector((state) => state.filter.sort.sortProperty);
 
 
-  console.log(categoryId);
-
   const { searchValue } = React.useContext(SearchContext); //контекст из апп.джсх
   const [items, setItems] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [currentPage, setCurrentPage] = React.useState(1);
 
   const onChangeCategory = (id) => {
-    console.log(id);
     dispatch(setCategoryId(id));
   };
 
@@ -35,12 +33,20 @@ const Home = () => {
     const category = categoryId > 0 ? `category=${categoryId}` : '';
     const search = searchValue ? `&search=${searchValue}` : '';
 
-    fetch(
-      `https://64aaeb3e0c6d844abedefbc9.mockapi.io/items?page=${currentPage}&limit=4&${category}&sortBy=${sortBy}&order=${order}${search}`,
-    )
-      .then((res) => res.json())
-      .then((arr) => {
-        setItems(arr);
+    // fetch(
+    //   `https://64aaeb3e0c6d844abedefbc9.mockapi.io/items?page=${currentPage}&limit=4&${category}&sortBy=${sortBy}&order=${order}${search}`,
+    // )
+    //   .then((res) => res.json())
+    //   .then((arr) => {
+    //     setItems(arr);
+    //     setIsLoading(false);
+    //   });
+    axios
+      .get(
+        `https://64aaeb3e0c6d844abedefbc9.mockapi.io/items?page=${currentPage}&limit=4&${category}&sortBy=${sortBy}&order=${order}${search}`,
+      )
+      .then(res => {
+        setItems(res.data);//answer from backend is stored in date
         setIsLoading(false);
       });
     window.scrollTo(0, 0); //перекидывает на верх страницы при перезагрузке
