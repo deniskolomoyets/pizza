@@ -16,6 +16,7 @@ const list = [
 function Sort() {
   const dispatch = useDispatch();
   const sort = useSelector((state) => state.filter.sort); //смотрит за изменениями, если они будут то будет перерендер
+  const sortRef = React.useRef(); //ссылка на дом-элемент
 
   const [open, setOpen] = React.useState(false);
 
@@ -24,8 +25,22 @@ function Sort() {
     setOpen(false);
   };
 
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.path.includes(sortRef.current)) {
+        setOpen(false);
+      }
+    };
+    document.body.addEventListener('click', handleClickOutside); //добавляет обработчик событий при клике на бади. старые при этом не удаляются, для того чтобы такого не было делаем анмаунт.
+
+    return () => {
+      document.body.removeEventListener('click', handleClickOutside);
+    };
+    //ретерн - это анмаунт. удаляем обработчик событий из бади, и указываем какой обработчик.  вызывается когда мы уходим из страницы(в нашем случае бади)
+  }, []);
+
   return (
-    <div className="sort">
+    <div ref={sortRef} className="sort">
       <div className="sort__label">
         <svg
           width="10"
