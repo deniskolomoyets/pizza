@@ -29,6 +29,7 @@ const cartSlice = createSlice({
 
       if (findItem) {
         findItem.count--;
+        
       }
     },
     removeItem(state, action) {

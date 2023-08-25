@@ -6,7 +6,7 @@ import logoSvg from '../assets/img/pizza-logo.svg';
 import Search from './Search/index.jsx';
 
 function Header() {
-  const { items, totalPrice } = useSelector((state) => state.cart);
+  const { totalPrice, items } = useSelector((state) => state.cart);
 
   const totalCount = items.reduce((sum, item) => sum + item.count, 0);
   return (

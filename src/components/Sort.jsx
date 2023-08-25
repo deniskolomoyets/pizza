@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSort } from '../redux/slices/filterSlice';
 
-const list = [
+export const list = [
   { name: 'популярности (DESC)', sortProperty: 'rating' },
   { name: 'популярности (ASC)', sortProperty: '-rating' },
 
@@ -27,7 +27,7 @@ function Sort() {
 
   React.useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!event.path.includes(sortRef.current)) {
+      if (!event.composedPath(sortRef.current)) {
         setOpen(false);
       }
     };
@@ -36,7 +36,7 @@ function Sort() {
     return () => {
       document.body.removeEventListener('click', handleClickOutside);
     };
-    //ретерн - это анмаунт. удаляем обработчик событий из бади, и указываем какой обработчик.  вызывается когда мы уходим из страницы(в нашем случае бади)
+    //ретерн - это анмаунт. удаляем обработчик событий из бади, и указываем какой обработчик.  вызывается когда мы уходим из страницы(в нашем случае бади)(если компонент уд-ся со стр то удаляю обработчик события с body на клик, т,е было размонтирование и вызови эту фу-ию)
   }, []);
 
   return (
