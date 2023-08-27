@@ -1,5 +1,4 @@
 import React from 'react';
-import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import qs from 'qs';
 import { useNavigate } from 'react-router-dom';
@@ -11,20 +10,20 @@ import PizzaBlock from '../components/PizzaBlock';
 import Skeleton from '../components/PizzaBlock/Skeleton';
 import Pagination from '../Pagination';
 import { SearchContext } from '../App';
+import { fetchPizzas } from '../redux/slices/pizzaSlice';
 
 const Home = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const isSearch = React.useRef(false);
   const isMounted = React.useRef(false);
+
+  const { items, status } = useSelector((state) => state.pizza);
 
   const categoryId = useSelector((state) => state.filter.categoryId);
   const sortType = useSelector((state) => state.filter.sort.sortProperty);
   const currentPage = useSelector((state) => state.filter.currentPage);
 
   const { searchValue } = React.useContext(SearchContext); //контекст из апп.джсх
-  const [items, setItems] = React.useState([]);
-  const [isLoading, setIsLoading] = React.useState(true);
 
   const onChangeCategory = (id) => {
     dispatch(setCategoryId(id));
@@ -34,29 +33,42 @@ const Home = () => {
     dispatch(setCurrentPage(number));
   };
 
-  const fetchPizzas = () => {
-    setIsLoading(true);
-
+  const getPizzas = async () => {
     const sortBy = sortType.replace('-', '');
     const order = sortType.includes('-') ? 'asc' : 'decs';
     const category = categoryId > 0 ? `category=${categoryId}` : '';
     const search = searchValue ? `&search=${searchValue}` : '';
 
-    axios
-      .get(
-        `https://64aaeb3e0c6d844abedefbc9.mockapi.io/items?page=${currentPage}&limit=4&${category}&sortBy=${sortBy}&order=${order}${search}`,
-      )
-      .then((res) => {
-        setItems(res.data); //answer from backend is stored in date
-        setIsLoading(false);
-      });
+    // await axios
+    //   .get(
+    //     `https://-64aaeb3e0c6d844abedefbc9.mockapi.io/items?page=${currentPage}&limit=4&${category}&sortBy=${sortBy}&order=${order}${search}`,
+    //   )
+    //   .then((res) => {
+    //     setItems(res.data); //answer from backend is stored in date
+    //     setIsLoading(false);
+    //   }).catch((err) => {
+    //     setIsLoading(false);
+    //   })
+
+    dispatch(
+      fetchPizzas({
+        sortBy,
+        order,
+        category,
+        search,
+        currentPage,
+      }),
+    );
+    window.scrollTo(0, 0);
   };
 
   // if changed parameters and was first render
   //если первого рендера не было, не надо вшивать в адресную строчку параметры (больше как лайфхак)
   React.useEffect(() => {
     if (isMounted.current) {
+      //если был 1 рендер  если это будет true то делай нижнюю информацию
       const queryString = qs.stringify({
+        // если пришли параметры превращаю их в одну строчку
         sortProperty: sortType,
         categoryId,
         currentPage,
@@ -64,14 +76,15 @@ const Home = () => {
       navigate(`?${queryString}`);
     }
     isMounted.current = true;
-  }, [categoryId, sortType, currentPage]);
+  }, [categoryId, sortType, currentPage, searchValue]);
 
   //if was first render, check url-parameters and save in redux
   React.useEffect(() => {
     if (window.location.search) {
+      //если window.location.search есть то буду парсить из парпаметров и превращать в объект
       const params = qs.parse(window.location.search.substring(1)); //парсим и убираем вопросительный знак
 
-      const sort = list.find((obj) => obj.sortProperty === params.sortProperty);
+      const sort = list.find((obj) => obj.sortProperty === params.sortProperty); // необходимо пробежаться по каждому сво-тву и найти в объекте sortProperty то что есть в params.sortProperty
 
       dispatch(
         setFilters({
@@ -79,19 +92,13 @@ const Home = () => {
           sort,
         }),
       );
-      isSearch.current = true;
     }
   }, []);
 
   //if was first render, request pizzas
   React.useEffect(() => {
-    window.scrollTo(0, 0); //перекидывает на верх страницы при перезагрузке
-
-    if (!isSearch.current) {
-      fetchPizzas();
-    }
-    isSearch.current = false;
-  }, [categoryId, sortType, searchValue, currentPage]);
+    getPizzas();
+  }, [categoryId, sortType, currentPage, searchValue ]);
 
   const skeletons = [...new Array(6)].map((_, index) => <Skeleton key={index} />);
 
@@ -104,7 +111,19 @@ const Home = () => {
         <Sort />
       </div>
       <h2 className="content__title">Все пиццы</h2>
-      <div className="content__items">{isLoading ? skeletons : pizzas}</div>
+      {status === 'error' ? (
+        <div className="content__error-info">
+          <h2>
+            Error <span>😕</span>
+          </h2>
+          <p>
+          Failed to get pizzas
+          </p>{' '}
+        </div>
+      ) : (
+        <div className="content__items">{status === 'loading' ? skeletons : pizzas}</div>
+      )}
+
       <Pagination currentPage={currentPage} onChangePage={onChangePage} />
     </div>
   );
