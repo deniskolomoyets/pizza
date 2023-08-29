@@ -3,27 +3,32 @@ import { useSelector, useDispatch } from 'react-redux';
 import qs from 'qs';
 import { useNavigate } from 'react-router-dom';
 
-import { setCategoryId, setCurrentPage, setFilters } from '../redux/slices/filterSlice';
+import {
+  selectFilter,
+  setCategoryId,
+  setCurrentPage,
+  setFilters,
+} from '../redux/slices/filterSlice';
 import Categories from '../components/Categories';
 import Sort, { list } from '../components/Sort';
 import PizzaBlock from '../components/PizzaBlock';
 import Skeleton from '../components/PizzaBlock/Skeleton';
 import Pagination from '../Pagination';
-import { SearchContext } from '../App';
-import { fetchPizzas } from '../redux/slices/pizzaSlice';
+import { fetchPizzas, selectPizzaData } from '../redux/slices/pizzaSlice';
 
 const Home = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const isMounted = React.useRef(false);
 
-  const { items, status } = useSelector((state) => state.pizza);
+  const { items, status } = useSelector(selectPizzaData);
 
-  const categoryId = useSelector((state) => state.filter.categoryId);
-  const sortType = useSelector((state) => state.filter.sort.sortProperty);
-  const currentPage = useSelector((state) => state.filter.currentPage);
+  // const categoryId = useSelector((state) => state.filter.categoryId);
+  // const sortType = useSelector((state) => state.filter.sort.sortProperty);
+  // const currentPage = useSelector((state) => state.filter.currentPage);
+  // const searchValue = useSelector((state) => state.filter.searcValue);
 
-  const { searchValue } = React.useContext(SearchContext); //контекст из апп.джсх
+  const { categoryId, sort, currentPage, searchValue } = useSelector(selectFilter);
 
   const onChangeCategory = (id) => {
     dispatch(setCategoryId(id));
@@ -33,9 +38,10 @@ const Home = () => {
     dispatch(setCurrentPage(number));
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const getPizzas = async () => {
-    const sortBy = sortType.replace('-', '');
-    const order = sortType.includes('-') ? 'asc' : 'decs';
+    const sortBy = sort.sortProperty.replace('-', '');
+    const order = sort.sortProperty.includes('-') ? 'asc' : 'decs';
     const category = categoryId > 0 ? `category=${categoryId}` : '';
     const search = searchValue ? `&search=${searchValue}` : '';
 
@@ -69,14 +75,14 @@ const Home = () => {
       //если был 1 рендер  если это будет true то делай нижнюю информацию
       const queryString = qs.stringify({
         // если пришли параметры превращаю их в одну строчку
-        sortProperty: sortType,
+        sortProperty: sort.sortProperty,
         categoryId,
         currentPage,
       });
       navigate(`?${queryString}`);
     }
     isMounted.current = true;
-  }, [categoryId, sortType, currentPage, searchValue]);
+  }, [categoryId, sort.sortProperty, currentPage, searchValue]);
 
   //if was first render, check url-parameters and save in redux
   React.useEffect(() => {
@@ -98,7 +104,7 @@ const Home = () => {
   //if was first render, request pizzas
   React.useEffect(() => {
     getPizzas();
-  }, [categoryId, sortType, currentPage, searchValue ]);
+  }, [categoryId, sort.sortProperty, currentPage, searchValue]);
 
   const skeletons = [...new Array(6)].map((_, index) => <Skeleton key={index} />);
 
@@ -116,9 +122,7 @@ const Home = () => {
           <h2>
             Error <span>😕</span>
           </h2>
-          <p>
-          Failed to get pizzas
-          </p>{' '}
+          <p>Failed to get pizzas</p>{' '}
         </div>
       ) : (
         <div className="content__items">{status === 'loading' ? skeletons : pizzas}</div>

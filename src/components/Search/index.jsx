@@ -1,6 +1,7 @@
 import React from 'react';
-import { SearchContext } from '../../App';
 import debounce from 'lodash.debounce';
+import { setSearchValue } from '../../redux/slices/filterSlice';
+import { useDispatch } from 'react-redux';
 
 import searchIcon from '../../assets/img/search-icon.svg';
 import cancelIcon from '../../assets/img/cancel-icon.svg';
@@ -8,19 +9,19 @@ import cancelIcon from '../../assets/img/cancel-icon.svg';
 import styles from './Search.module.scss';
 
 const Search = () => {
+  const dispatch = useDispatch();
   const [value, setValue] = React.useState('');
-  const { setSearchValue } = React.useContext(SearchContext);
   const inputRef = React.useRef();
 
   const onClickClear = () => {
-    setSearchValue('');
+    dispatch(setSearchValue(''));
     setValue('');
     inputRef.current.focus();
   }; //инпут с самонаведением с помощью хука useref
 
   const updateSearchValue = React.useCallback(
     debounce((str) => {
-      setSearchValue(str);
+      dispatch(setSearchValue(str));
     }, 250),
     [],
   ); //-если меняется value, то вызываем это действие; ссылка на функцию и сделали её отложенной
