@@ -19,7 +19,7 @@ const Search: React.FC = () => {
     // if (inputRef.current) {
     //   inputRef.current.focus();
     // } //потенциальное вытаскивание данных из функции нулл или андефайнд
-    inputRef.current?.focus(); //Optional chaining
+    inputRef.current?.focus(); //Optional chainging
   }; //инпут с самонаведением с помощью хука useref
 
   const updateSearchValue = React.useCallback(
@@ -29,10 +29,10 @@ const Search: React.FC = () => {
     []
   ); //-если меняется value, то вызываем это действие; ссылка на функцию и сделали её отложенной
 
-  const onChangeInput = (event: any) => {
+  const onChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
     updateSearchValue(event.target.value);
-  };
+  }; // wrote about typization in workbook (23)
 
   return (
     <div className={styles.root}>
