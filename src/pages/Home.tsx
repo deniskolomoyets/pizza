@@ -1,9 +1,10 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import qs from "qs";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import {
+  FilterSliceState,
   selectFilter,
   setCategoryId,
   setCurrentPage,
@@ -14,11 +15,16 @@ import Sort, { list } from "../components/Sort";
 import PizzaBlock from "../components/PizzaBlock";
 import Skeleton from "../components/PizzaBlock/Skeleton";
 import Pagination from "../Pagination";
-import { fetchPizzas, selectPizzaData } from "../redux/slices/pizzaSlice";
+import {
+  SearchPizzaParams,
+  fetchPizzas,
+  selectPizzaData,
+} from "../redux/slices/pizzaSlice";
+import { useAppDispatch } from "../redux/store";
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const isMounted = React.useRef(false);
 
   const { items, status } = useSelector(selectPizzaData);
@@ -58,13 +64,12 @@ const Home: React.FC = () => {
     //   })
 
     dispatch(
-      // @ts-ignore
       fetchPizzas({
         sortBy,
         order,
         category,
         search,
-        currentPage,
+        currentPage: String(currentPage),
       })
     );
     window.scrollTo(0, 0);
@@ -72,36 +77,40 @@ const Home: React.FC = () => {
 
   // if changed parameters and was first render
   //если первого рендера не было, не надо вшивать в адресную строчку параметры (больше как лайфхак)
-  React.useEffect(() => {
-    if (isMounted.current) {
-      //если был 1 рендер  если это будет true то делай нижнюю информацию
-      const queryString = qs.stringify({
-        // если пришли параметры превращаю их в одну строчку
-        sortProperty: sort.sortProperty,
-        categoryId,
-        currentPage,
-      });
-      navigate(`?${queryString}`);
-    }
-    isMounted.current = true;
-  }, [categoryId, sort.sortProperty, currentPage, searchValue]);
+  // React.useEffect(() => {
+  //   if (isMounted.current) {
+  //     //если был 1 рендер  если это будет true то делай нижнюю информацию
+  //     const queryString = qs.stringify({
+  //       // если пришли параметры превращаю их в одну строчку
+  //       sortProperty: sort.sortProperty,
+  //       categoryId,
+  //       currentPage,
+  //     });
+  //     navigate(`?${queryString}`);
+  //   }
+  //   isMounted.current = true;
+  // }, [categoryId, sort.sortProperty, currentPage, searchValue]);
 
   //if was first render, check url-parameters and save in redux
-  React.useEffect(() => {
-    if (window.location.search) {
-      //если window.location.search есть то буду парсить из парпаметров и превращать в объект
-      const params = qs.parse(window.location.search.substring(1)); //парсим и убираем вопросительный знак
+  // React.useEffect(() => {
+  //   if (window.location.search) {
+  //     //если window.location.search есть то буду парсить из парпаметров и превращать в объект
+  //     const params = qs.parse(
+  //       window.location.search.substring(1)
+  //     ) as unknown as SearchPizzaParams; //парсим и убираем вопросительный знак
 
-      const sort = list.find((obj) => obj.sortProperty === params.sortProperty); // необходимо пробежаться по каждому сво-тву и найти в объекте sortProperty то что есть в params.sortProperty
+  //     const sort = list.find((obj) => obj.sortProperty === params.sortBy); // необходимо пробежаться по каждому сво-тву и найти в объекте sortProperty то что есть в params.sortProperty
 
-      dispatch(
-        setFilters({
-          ...params, //sortProperty(ссылка) передаеться как строчка, поэтому в const sort мы пробегаемся по листу и сравниваем, передавая при этом обьект
-          sort,
-        })
-      );
-    }
-  }, []);
+  //     dispatch(
+  //       setFilters({
+  //         searchValue: params.search,
+  //         categoryId: Number(params.category),
+  //         currentPage: Number(params.currentPage),
+  //         sort: sort || list[0],
+  //       })
+  //     );
+  //   }
+  // }, []);
 
   //if was first render, request pizzas
   React.useEffect(() => {
@@ -112,11 +121,7 @@ const Home: React.FC = () => {
     <Skeleton key={index} />
   ));
 
-  const pizzas = items.map((obj: any) => (
-    <Link key={obj.id} to={`/pizza/${obj.id}`}>
-      <PizzaBlock {...obj} />
-    </Link>
-  ));
+  const pizzas = items.map((obj: any) => <PizzaBlock {...obj} />);
 
   return (
     <div className="container">
