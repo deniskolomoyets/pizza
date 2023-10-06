@@ -1,17 +1,17 @@
 import React from "react";
-import { useSelector, useDispatch } from "react-redux";
-import {
-  SortPropertyEnum,
-  selectSort,
-  setSort,
-} from "../redux/slices/filterSlice";
+import { useDispatch } from "react-redux";
+import { Sort, SortPropertyEnum, setSort } from "../redux/slices/filterSlice";
 
 type ListItem = {
   name: string;
   sortProperty: SortPropertyEnum;
 };
 
-type PopUpClick = MouseEvent & { path: Node[] };
+// type PopUpClick = MouseEvent & { path: Node[] };
+
+type SortPopUpProps = {
+  value: Sort;
+};
 
 export const list: ListItem[] = [
   { name: "популярности (DESC)", sortProperty: SortPropertyEnum.RATING_DESC },
@@ -24,9 +24,9 @@ export const list: ListItem[] = [
   { name: "алфавиту (ASC)", sortProperty: SortPropertyEnum.TITLE_ASC },
 ];
 
-function SortPopUp() {
+const SortPopUp: React.FC<SortPopUpProps> = React.memo(({ value }) => {
   const dispatch = useDispatch();
-  const sort = useSelector(selectSort); //смотрит за изменениями, если они будут то будет перерендер
+  // const sort = useSelector(selectSort); //смотрит за изменениями, если они будут то будет перерендер
   const sortRef = React.useRef<HTMLDivElement>(null); //ссылка на дом-элемент; передает по умолчанию нул или дивэлемент
 
   const [open, setOpen] = React.useState(false);
@@ -66,7 +66,7 @@ function SortPopUp() {
           />
         </svg>
         <b>Сортировка по:</b>
-        <span onClick={() => setOpen(!open)}>{sort.name}</span>
+        <span onClick={() => setOpen(!open)}>{value.name}</span>
       </div>
       {open && (
         <div className="sort__popup">
@@ -76,7 +76,7 @@ function SortPopUp() {
                 key={i}
                 onClick={() => onClickListItem(obj)}
                 className={
-                  sort.sortProperty === obj.sortProperty ? "active" : ""
+                  value.sortProperty === obj.sortProperty ? "active" : ""
                 }
               >
                 {obj.name}
@@ -88,6 +88,6 @@ function SortPopUp() {
       )}
     </div>
   );
-}
+});
 
 export default SortPopUp;
