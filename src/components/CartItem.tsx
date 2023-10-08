@@ -1,13 +1,8 @@
 import React from "react";
-import clsx from "clsx";
 import { useDispatch } from "react-redux";
-
-import {
-  CartItem,
-  addItem,
-  minusItem,
-  removeItem,
-} from "../redux/slices/cartSlice";
+import { TCartItem } from "../redux/cart/types";
+import { addItem, minusItem, removeItem } from "../redux/cart/cartSlice";
+import clsx from "clsx";
 
 type CartItemProps = {
   id: string;
@@ -34,7 +29,7 @@ const CartItemBlock: React.FC<CartItemProps> = ({
     dispatch(
       addItem({
         id,
-      } as CartItem)
+      } as TCartItem)
     );
   };
 

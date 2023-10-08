@@ -4,16 +4,26 @@ import { useSelector } from "react-redux";
 
 import logoSvg from "../assets/img/pizza-logo.svg";
 import Search from "./Search/index";
-import { selectCart } from "../redux/slices/cartSlice";
+import { selectCart } from "../redux/cart/selectors";
 
 function Header() {
   const { totalPrice, items } = useSelector(selectCart);
   const location = useLocation();
+  const isMounted = React.useRef(false);
 
   const totalCount = items.reduce(
     (sum: number, item: any) => sum + item.count,
     0
   );
+
+  React.useEffect(() => {
+    if (isMounted.current) {
+      const json = JSON.stringify(items);
+      localStorage.setItem("cart", json);
+    }
+    isMounted.current = true;
+  }, [items]); // при первом рендере не будет сохранять в localstorage(указан false), потом делаем true, и только при последуещем рендере будем сохранять
+
   return (
     <div className="header">
       <div className="container">

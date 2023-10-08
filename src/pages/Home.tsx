@@ -1,38 +1,28 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-
-import {
-  selectFilter,
-  setCategoryId,
-  setCurrentPage,
-} from "../redux/slices/filterSlice";
 import Categories from "../components/Categories";
 import Sort from "../components/Sort";
 import PizzaBlock from "../components/PizzaBlock";
 import Skeleton from "../components/PizzaBlock/Skeleton";
 import Pagination from "../Pagination";
-import { fetchPizzas, selectPizzaData } from "../redux/slices/pizzaSlice";
 import { useAppDispatch } from "../redux/store";
+import { selectFilter } from "../redux/filter/selectors";
+import { selectPizzaData } from "../redux/pizza/selectors";
+import { setCategoryId, setCurrentPage } from "../redux/filter/filterSlice";
+import { fetchPizzas } from "../redux/pizza/asyncActions";
 
 const Home: React.FC = () => {
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const isMounted = React.useRef(false);
-
-  const { items, status } = useSelector(selectPizzaData);
-
-  // const categoryId = useSelector((state) => state.filter.categoryId);
-  // const sortType = useSelector((state) => state.filter.sort.sortProperty);
-  // const currentPage = useSelector((state) => state.filter.currentPage);
-  // const searchValue = useSelector((state) => state.filter.searcValue);
-
   const { categoryId, sort, currentPage, searchValue } =
-    useSelector(selectFilter);
+    useSelector(selectFilter); // вытаскиваю свой стейт с помощью этого хука описываю всё что нужно через . мне вытищить
+  const { items, status } = useSelector(selectPizzaData); //фун-ия создана в pizzaSlice показывает что меняется в фильтрации
 
-  const onChangeCategory = React.useCallback((idx: number) => {
-    dispatch(setCategoryId(idx));
-  }, []);
+  const onChangeCategory = React.useCallback(
+    (idx: number) => {
+      dispatch(setCategoryId(idx));
+    },
+    [dispatch]
+  ); //create on the first render as useEffect and don't re-create anymore keep it in memory and when I say give onChangeCategory give me the power for the very first render
 
   const onChangePage = (page: number) => {
     dispatch(setCurrentPage(page));
@@ -40,21 +30,10 @@ const Home: React.FC = () => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getPizzas = async () => {
-    const sortBy = sort.sortProperty.replace("-", "");
-    const order = sort.sortProperty.includes("-") ? "asc" : "decs";
+    const sortBy = sort.sortProperty.replace("-", ""); //replace("-") из св-ства удали - если будет
+    const order = sort.sortProperty.includes("-") ? "asc" : "decs"; // проверка на если есть - то делай сортировку по возрастанию иначе по убыванию
     const category = categoryId > 0 ? `category=${categoryId}` : "";
     const search = searchValue ? `&search=${searchValue}` : "";
-
-    // await axios
-    //   .get(
-    //     `https://-64aaeb3e0c6d844abedefbc9.mockapi.io/items?page=${currentPage}&limit=4&${category}&sortBy=${sortBy}&order=${order}${search}`,
-    //   )
-    //   .then((res) => {
-    //     setItems(res.data); //answer from backend is stored in date
-    //     setIsLoading(false);
-    //   }).catch((err) => {
-    //     setIsLoading(false);
-    //   })
 
     dispatch(
       fetchPizzas({
@@ -68,47 +47,11 @@ const Home: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
-  // if changed parameters and was first render
-  //если первого рендера не было, не надо вшивать в адресную строчку параметры (больше как лайфхак)
-  // React.useEffect(() => {
-  //   if (isMounted.current) {
-  //     //если был 1 рендер  если это будет true то делай нижнюю информацию
-  //     const queryString = qs.stringify({
-  //       // если пришли параметры превращаю их в одну строчку
-  //       sortProperty: sort.sortProperty,
-  //       categoryId,
-  //       currentPage,
-  //     });
-  //     navigate(`?${queryString}`);
-  //   }
-  //   isMounted.current = true;
-  // }, [categoryId, sort.sortProperty, currentPage, searchValue]);
-
-  //if was first render, check url-parameters and save in redux
-  // React.useEffect(() => {
-  //   if (window.location.search) {
-  //     //если window.location.search есть то буду парсить из парпаметров и превращать в объект
-  //     const params = qs.parse(
-  //       window.location.search.substring(1)
-  //     ) as unknown as SearchPizzaParams; //парсим и убираем вопросительный знак
-
-  //     const sort = list.find((obj) => obj.sortProperty === params.sortBy); // необходимо пробежаться по каждому сво-тву и найти в объекте sortProperty то что есть в params.sortProperty
-
-  //     dispatch(
-  //       setFilters({
-  //         searchValue: params.search,
-  //         categoryId: Number(params.category),
-  //         currentPage: Number(params.currentPage),
-  //         sort: sort || list[0],
-  //       })
-  //     );
-  //   }
-  // }, []);
-
   //if was first render, request pizzas
   React.useEffect(() => {
+    //если сейчас нет поиска то делаю  fetchPizzas() запрос
     getPizzas();
-  }, [categoryId, sort.sortProperty, currentPage, searchValue]);
+  }, [categoryId, sort.sortProperty, currentPage, searchValue, getPizzas]); //массив зависимости следит если изменения иди в бэкенд и делается запрос на получение новых пицц
 
   const skeletons = [...new Array(6)].map((_, index) => (
     <Skeleton key={index} />

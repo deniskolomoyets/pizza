@@ -1,12 +1,12 @@
 import React from "react";
 import debounce from "lodash.debounce";
-import { setSearchValue } from "../../redux/slices/filterSlice";
 import { useDispatch } from "react-redux";
 
 import searchIcon from "../../assets/img/search-icon.svg";
 import cancelIcon from "../../assets/img/cancel-icon.svg";
 
 import styles from "./Search.module.scss";
+import { setSearchValue } from "../../redux/filter/filterSlice";
 
 const Search: React.FC = () => {
   const dispatch = useDispatch();
@@ -22,6 +22,7 @@ const Search: React.FC = () => {
     inputRef.current?.focus(); //Optional chainging
   }; //инпут с самонаведением с помощью хука useref
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const updateSearchValue = React.useCallback(
     debounce((str: string) => {
       dispatch(setSearchValue(str));
