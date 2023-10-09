@@ -1,7 +1,7 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TCartItem, CartSliceState } from "./types";
-import { calcTotalPrice } from "../../utils/calcTotalPrice";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { getCartFromLS } from "../../utils/getCartFromLS";
+import { CartSliceState, TCartItem } from "./types";
+import { calcTotalPrice } from "../../utils/calcTotalPrice";
 
 const initialState: CartSliceState = getCartFromLS(); //create state
 

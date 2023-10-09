@@ -14,7 +14,7 @@ type CartItemProps = {
   size: number;
 };
 
-const CartItemBlock: React.FC<CartItemProps> = ({
+export const CartItem: React.FC<CartItemProps> = ({
   id,
   title,
   type,
@@ -132,5 +132,3 @@ const CartItemBlock: React.FC<CartItemProps> = ({
     </div>
   );
 };
-
-export default CartItemBlock;

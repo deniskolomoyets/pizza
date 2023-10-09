@@ -7,7 +7,7 @@ export const getCartFromLS = () => {
   const totalPrice = calcTotalPrice(items);
 
   return {
-    items: items as TCartItem,
+    items: items as TCartItem[],
     totalPrice,
   };
 }; //если в локалсторедж есть что-то, то спарси это, иначе верни пустой масив
