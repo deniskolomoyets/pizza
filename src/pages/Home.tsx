@@ -34,7 +34,7 @@ const Home: React.FC = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getPizzas = async () => {
     const sortBy = sort.sortProperty.replace("-", ""); //replace("-") из св-ства удали - если будет
-    const order = sort.sortProperty.includes("-") ? "asc" : "decs"; // проверка на если есть - то делай сортировку по возрастанию иначе по убыванию
+    const order = sort.sortProperty.includes("-") ? "asc" : "desc"; // проверка на если есть - то делай сортировку по возрастанию иначе по убыванию
     const category = categoryId > 0 ? `category=${categoryId}` : "";
     const search = searchValue ? `&search=${searchValue}` : "";
 
@@ -54,7 +54,7 @@ const Home: React.FC = () => {
   React.useEffect(() => {
     //если сейчас нет поиска то делаю  fetchPizzas() запрос
     getPizzas();
-  }, [categoryId, sort.sortProperty, currentPage, searchValue, getPizzas]); //массив зависимости следит если изменения иди в бэкенд и делается запрос на получение новых пицц
+  }, [categoryId, sort.sortProperty, currentPage, searchValue]); //массив зависимости следит если изменения иди в бэкенд и делается запрос на получение новых пицц
 
   const skeletons = [...new Array(6)].map((_, index) => (
     <Skeleton key={index} />
