@@ -32,7 +32,7 @@ const Home: React.FC = () => {
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const getPizzas = async () => {
+  const getPizzas = React.useCallback(async () => {
     const sortBy = sort.sortProperty.replace("-", ""); //replace("-") из св-ства удали - если будет
     const order = sort.sortProperty.includes("-") ? "asc" : "desc"; // проверка на если есть - то делай сортировку по возрастанию иначе по убыванию
     const category = categoryId > 0 ? `category=${categoryId}` : "";
@@ -48,14 +48,13 @@ const Home: React.FC = () => {
       })
     );
     window.scrollTo(0, 0);
-  };
 
-  //if was first render, request pizzas
+    //if was first render, request pizzas
+  }, [categoryId, sort.sortProperty, currentPage, searchValue, dispatch]); //массив зависимости следит если изменения иди в бэкенд и делается запрос на получение новых пицц
   React.useEffect(() => {
     //если сейчас нет поиска то делаю  fetchPizzas() запрос
     getPizzas();
-  }, [categoryId, sort.sortProperty, currentPage, searchValue]); //массив зависимости следит если изменения иди в бэкенд и делается запрос на получение новых пицц
-
+  }, [categoryId, sort.sortProperty, currentPage, searchValue, getPizzas]);
   const skeletons = [...new Array(6)].map((_, index) => (
     <Skeleton key={index} />
   ));
